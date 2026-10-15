@@ -9,15 +9,20 @@ defmodule LiveSidestep.MixProject do
       start_permanent: Mix.env() == :prod,
       compilers: [:live_sidestep] ++ Mix.compilers(),
       deps: deps(),
-      description: "Restartable LiveView-shaped native views for Sidestep and AppKit",
+      description:
+        "Native desktop views for Elixir: LiveView-style callbacks rendering Sidestep/AppKit through Rustler.",
       source_url: "https://github.com/mattneel/live_sidestep",
       package: [
         licenses: ["MIT"],
         links: %{"GitHub" => "https://github.com/mattneel/live_sidestep"},
         files:
-          ~w(lib native mix.exs mix.lock Cargo.toml Cargo.lock README.md LICENSE CHANGELOG.md)
+          ~w(lib native docs/images mix.exs mix.lock Cargo.toml Cargo.lock README.md LICENSE CHANGELOG.md)
       ],
-      docs: [main: "readme", extras: ["README.md", "CHANGELOG.md"]],
+      docs: [
+        main: "readme",
+        extras: ["README.md", "CHANGELOG.md", "LICENSE"],
+        assets: %{"docs/images" => "docs/images"}
+      ],
       dialyzer: [plt_add_apps: [:ex_unit]],
       aliases: aliases()
     ]

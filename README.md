@@ -1,4 +1,10 @@
-# LiveSidestep
+# live_sidestep
+
+[![License: MIT](https://img.shields.io/github/license/mattneel/live_sidestep)](LICENSE)
+[![Elixir 1.20](https://img.shields.io/badge/Elixir-1.20-4B275F?logo=elixir&logoColor=white)](https://elixir-lang.org)
+[![OTP 28](https://img.shields.io/badge/OTP-28-A90533?logo=erlang&logoColor=white)](https://www.erlang.org)
+[![Sidestep 626422b](https://img.shields.io/badge/Sidestep-626422b-1F425F)](https://github.com/bitemyapp/sidestep/tree/626422b1fa52fc14af13976c5c90b4efd657b1d7)
+[![Rust 1.97](https://img.shields.io/badge/Rust-1.97-000000?logo=rust&logoColor=white)](https://www.rust-lang.org)
 
 Elixir-owned views in native AppKit windows. A separate Rust host runs the UI;
 Elixir callbacks use Phoenix assigns and a small native template language.
@@ -33,6 +39,11 @@ In IEx, from a Wayland desktop session:
 The demo includes a counter, a five-second CPU-bound callback, revisioned text
 editing, keyed editor insertion/removal/reordering, and worker recovery. Type
 while the CPU callback runs; its work must not block the native editor.
+
+![The demo window, captured live from the Sidestep Wayland host](docs/images/demo-window.png)
+
+[Narrow-window capture](docs/images/demo-window-narrow.png), including wrapped text
+and the same vertically centered count label.
 
 For a sibling application, add a source dependency:
 

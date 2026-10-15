@@ -26,6 +26,8 @@
   Wayland input acceptance, and an expanded `mix ci` native/Elixir quality gate.
 - Per-line vertical centering for mixed-height native row controls, including
   count labels next to buttons, without transiently repositioning native editors.
+- Companion repository branding, GitHub funding metadata, and live native-window
+  screenshots included in the source package and generated documentation.
 
 ### Acceptance boundaries
 
