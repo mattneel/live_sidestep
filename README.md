@@ -178,6 +178,9 @@ flowchart LR
 - `open/2` returns before mount/render completes. The window is revealed after
   its first valid tree, with initial configuration already applied. Monitor the
   returned session PID for asynchronous startup failures.
+- Hosts receive a snapshot of the current BEAM environment at open.
+  `System.put_env/2` and `System.delete_env/1` affect newly opened hosts, not
+  already running windows.
 - Only successful callbacks followed by a valid, encodable render commit assigns.
   A worker failure remounts, then overlays the last checkpoint on mount defaults.
   Process resources and socket-private state must be recreated by `mount/3`.

@@ -1,11 +1,14 @@
 use live_sidestep_protocol::{MAX_MESSAGE_BYTES, QUEUE_CAPACITY, decode};
 use parking_lot::{Condvar, Mutex};
+use rustler::types::map::MapIterator;
 use rustler::{
     Atom, Binary, Encoder, Env, LocalPid, Monitor, OwnedBinary, OwnedEnv, Resource, ResourceArc,
     Term,
 };
 use std::collections::VecDeque;
+use std::ffi::OsStr;
 use std::io::{BufRead, BufReader, Read, Write};
+use std::os::unix::ffi::OsStrExt;
 use std::process::{Child, Command, Stdio};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -151,8 +154,14 @@ fn write_commands(
 }
 
 #[rustler::nif(schedule = "DirtyIo")]
-fn open<'a>(env: Env<'a>, executable: String, owner: LocalPid, id: u64) -> Term<'a> {
-    open_bridge(env, executable, owner, id).encode(env)
+fn open_native<'a>(
+    env: Env<'a>,
+    executable: String,
+    owner: LocalPid,
+    id: u64,
+    environment: MapIterator<'a>,
+) -> Term<'a> {
+    open_bridge(env, executable, owner, id, environment).encode(env)
 }
 
 fn open_bridge(
@@ -160,8 +169,24 @@ fn open_bridge(
     executable: String,
     owner: LocalPid,
     id: u64,
+    environment: MapIterator<'_>,
 ) -> Result<ResourceArc<Bridge>, String> {
-    let mut child = Command::new(executable)
+    // ERTS maintains its own environment; libc inheritance misses System.put_env
+    // and resurrects variables removed with System.delete_env. Never mutate the
+    // process-global environment from a NIF.
+    let mut command = Command::new(executable);
+    command.env_clear();
+    for (key, value) in environment {
+        let key: Binary<'_> = key.decode().map_err(|_| "invalid host environment key")?;
+        let value: Binary<'_> = value
+            .decode()
+            .map_err(|_| "invalid host environment value")?;
+        command.env(
+            OsStr::from_bytes(key.as_slice()),
+            OsStr::from_bytes(value.as_slice()),
+        );
+    }
+    let mut child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::inherit())

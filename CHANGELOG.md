@@ -29,6 +29,12 @@
 - Companion repository branding, GitHub funding metadata, and live native-window
   screenshots included in the source package and generated documentation.
 
+### Fixed
+
+- Native hosts now receive the current BEAM environment, including variables
+  changed or removed at runtime. Launch no longer relies on stale libc
+  inheritance or process-global mutation from a NIF.
+
 ### Acceptance boundaries
 
 - Linux x64/Wayland is the exercised graphical target. macOS selects system
