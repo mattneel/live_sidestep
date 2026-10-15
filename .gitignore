@@ -22,3 +22,8 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 live_sidestep-*.tar
 
+/target/
+/priv/native/
+/native/objc2-overlay/target/
+/native/objc2-overlay/.objc2-overlay/
+.expert/

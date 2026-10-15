@@ -1,0 +1,39 @@
+[workspace]
+resolver = "3"
+members = ["native/live_sidestep_protocol", "native/live_sidestep_native", "native/live_sidestep_host"]
+exclude = ["native/objc2-overlay"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97"
+license = "MIT"
+
+[workspace.dependencies]
+objc2 = { version = "=0.6.4", default-features = false, features = ["std"] }
+block2 = { version = "=0.6.2", default-features = false, features = ["std"] }
+objc2-foundation = { version = "=0.3.2", default-features = false, features = ["std"] }
+objc2-app-kit = { version = "=0.3.2", default-features = false, features = ["std"] }
+sidestep = { git = "https://github.com/bitemyapp/sidestep", rev = "626422b1fa52fc14af13976c5c90b4efd657b1d7" }
+
+[profile.dev]
+debug = 0
+
+# Sidestep's portable SIMD blending intentionally uses wrapping 16-bit arithmetic.
+[profile.dev.package.tiny-skia]
+overflow-checks = false
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+
+# Generated from checksum-pinned crates by the vendored, unmodified upstream tool.
+[patch.crates-io]
+objc2 = { path = "_build/objc2-overlay/objc2-0.6.4" }
+objc2-core-foundation = { path = "_build/objc2-overlay/objc2-core-foundation-0.3.2" }
+objc2-foundation = { path = "_build/objc2-overlay/objc2-foundation-0.3.2" }
+objc2-app-kit = { path = "_build/objc2-overlay/objc2-app-kit-0.3.2" }
+objc2-core-graphics = { path = "_build/objc2-overlay/objc2-core-graphics-0.3.2" }
+objc2-quartz-core = { path = "_build/objc2-overlay/objc2-quartz-core-0.3.2" }
+objc2-core-text = { path = "_build/objc2-overlay/objc2-core-text-0.3.2" }
+objc2-image-io = { path = "_build/objc2-overlay/objc2-image-io-0.3.2" }

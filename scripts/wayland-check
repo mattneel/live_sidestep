@@ -1,0 +1,56 @@
+#!/bin/sh
+set -eu
+
+for command in sway swaymsg grim wtype; do
+  command -v "$command" >/dev/null || { echo "Missing Wayland check prerequisite: $command" >&2; exit 1; }
+done
+
+runtime=$(mktemp -d /tmp/live-sidestep-wayland.XXXXXX)
+chmod 700 "$runtime"
+sway_pid=
+cleanup() {
+  status=$?
+  trap - EXIT INT TERM
+  if [ -n "$sway_pid" ]; then
+    kill "$sway_pid" 2>/dev/null || true
+    wait "$sway_pid" 2>/dev/null || true
+  fi
+  if [ "$status" -ne 0 ]; then cat "$runtime/sway.log" >&2; fi
+  rm -rf "$runtime"
+  exit "$status"
+}
+trap cleanup EXIT INT TERM
+
+export XDG_RUNTIME_DIR="$runtime"
+export WLR_BACKENDS=headless WLR_RENDERER=pixman WLR_LIBINPUT_NO_DEVICES=1
+unset WAYLAND_DISPLAY SWAYSOCK SIDESTEP_BACKEND
+cat >"$runtime/sway.conf" <<'CONFIG'
+output HEADLESS-1 resolution 1200x900 position 0 0 scale 1
+xwayland disable
+default_border none
+default_floating_border none
+focus_on_window_activation focus
+# IPC exposes pending placement before Sway commits its scene transaction.
+# Fixed-origin placement keeps injected coordinates equal to the visible
+# surface coordinates, including the very first activating click.
+for_window [app_id=".*"] floating enable, move position 0 0
+CONFIG
+sway --unsupported-gpu -c "$runtime/sway.conf" >"$runtime/sway.log" 2>&1 &
+sway_pid=$!
+
+attempt=0
+while [ -z "${SWAYSOCK:-}" ] || [ -z "${WAYLAND_DISPLAY:-}" ]; do
+  for socket in "$runtime"/sway-ipc.*.sock; do
+    if [ -S "$socket" ]; then export SWAYSOCK="$socket"; break; fi
+  done
+  for socket in "$runtime"/wayland-*; do
+    if [ -S "$socket" ]; then export WAYLAND_DISPLAY="${socket##*/}"; break; fi
+  done
+  attempt=$((attempt + 1))
+  if [ "$attempt" -gt 100 ]; then echo "Headless compositor did not start" >&2; exit 1; fi
+  sleep 0.05
+done
+
+mix compile
+cargo build --locked -p live_sidestep_host --example wayland_seat --target-dir _build/native
+mix test --only wayland test/wayland_test.exs "$@"

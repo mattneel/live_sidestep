@@ -1,0 +1,22 @@
+[package]
+name = "live_sidestep_host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+live_sidestep_protocol = { path = "../live_sidestep_protocol" }
+serde = "1"
+serde_json = "1"
+objc2.workspace = true
+block2.workspace = true
+sidestep.workspace = true
+objc2-foundation = { workspace = true, features = ["NSString", "NSObject", "NSThread", "NSTimer", "NSRunLoop", "NSDate", "NSDictionary", "NSGeometry", "NSRange", "NSNotification", "NSZone", "NSArray", "block2"] }
+objc2-app-kit = { workspace = true, features = ["NSApplication", "NSResponder", "NSView", "NSWindow", "NSGraphics", "NSColor", "NSFont", "NSEvent", "NSRunningApplication", "NSControl", "NSCell", "NSActionCell", "NSButton", "NSButtonCell", "NSTextField", "NSTextFieldCell", "NSText", "NSTextView", "NSTextInputClient", "NSScrollView", "NSClipView", "NSScroller", "NSParagraphStyle", "objc2-core-foundation", "block2"] }
+
+[dev-dependencies]
+wayland-client = "0.31"
+wayland-protocols-wlr = { version = "0.3", features = ["client"] }
+wayland-protocols-misc = { version = "0.3", features = ["client"] }

@@ -1,0 +1,31 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '28'
+          elixir-version: '1.20.2'
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.97.0'
+          components: rustfmt, clippy
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: linux-${{ hashFiles('mix.lock', 'Cargo.lock', 'native/objc2-overlay/Cargo.lock') }}
+      - run: sudo apt-get update && sudo apt-get install -y fontconfig fonts-dejavu-core libwayland-client0 libxkbcommon0 curl sway grim wtype
+      - run: mix deps.get
+      - run: mix ci
+      - run: scripts/wayland-check
